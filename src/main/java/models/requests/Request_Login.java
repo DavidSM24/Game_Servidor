@@ -1,6 +1,6 @@
-package models;
+package models.requests;
 
-import models.Request;
+import models.requests.Request;
 
 public class Request_Login extends Request{
 	
@@ -65,6 +65,6 @@ public class Request_Login extends Request{
 
 	@Override
 	public String toString() {
-		return "Request_Login [username=" + username + ", password=" + password + "]";
+		return "Request_Login [name="+super.getName()+", username=" + username + ", password=" + password + "]";
 	}
 }

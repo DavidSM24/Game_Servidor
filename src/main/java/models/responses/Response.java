@@ -1,4 +1,4 @@
-package models;
+package models.responses;
 
 public class Response {
 
