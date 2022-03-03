@@ -100,7 +100,7 @@ public class UserDAO {
 		return result;
 	}
 	
-	public static User getUsername(String username) {
+	public static User getByUsername(String username) {
 		User result = null;
 
 		con = MDBConexion.getConexion();

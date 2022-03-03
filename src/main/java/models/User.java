@@ -35,8 +35,6 @@ public class User {
 		this.games = games;
 	}
 
-
-
 	public int getId() {
 		return id;
 	}
