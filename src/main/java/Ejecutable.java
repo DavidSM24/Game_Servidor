@@ -13,6 +13,7 @@ import models.User;
 import models.requests.Request;
 import models.requests.Request_Buy;
 import models.requests.Request_CreateGame;
+import models.requests.Request_Edit;
 import models.requests.Request_Login;
 import models.requests.Request_Register;
 import models.responses.Response_Buy;
@@ -204,6 +205,22 @@ public class Ejecutable extends Thread {
 					flujosalida = new ObjectOutputStream(client.getOutputStream());
 					flujosalida.writeObject(rpb);
 					
+					
+					break;
+					
+				case "edit":
+					accepted=false;
+					Request_Edit re=(Request_Edit) request;
+					
+					if(
+							re.getUser()!=null
+							&&UserDAO.getById(re.getUser().getId())!=null) {
+						
+						UserDAO.update(re.getUser());
+						
+						accepted=true;
+						
+					}
 					
 					break;
 				}
