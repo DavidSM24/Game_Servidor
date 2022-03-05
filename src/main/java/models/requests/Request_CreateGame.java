@@ -1,5 +1,6 @@
 package models.requests;
 
+import java.io.File;
 import java.io.Serializable;
 
 import models.Game;
@@ -44,9 +45,10 @@ public class Request_CreateGame extends Request implements Serializable{
 			return true;
 		if (!super.equals(obj))
 			return false;
-		if (getClass() != obj.getClass())
+		if (!(obj instanceof Request_CreateGame))
 			return false;
 		Request_CreateGame other = (Request_CreateGame) obj;
+	
 		if (game == null) {
 			if (other.game != null)
 				return false;
@@ -58,7 +60,6 @@ public class Request_CreateGame extends Request implements Serializable{
 	@Override
 	public String toString() {
 		return "Request_CreateGame [game=" + game + "]";
-	}
-	
+	}	
 	
 }

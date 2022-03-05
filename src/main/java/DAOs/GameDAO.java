@@ -14,14 +14,14 @@ import utils.MDBConexion;
 
 public class GameDAO {
 
-	private static final String GETALL = "SELECT id,name,photo,price FROM game ORDER BY name ASC;";
-	private static final String GETBYID = "SELECT id,name,photo,price FROM game WHERE id=?;";
-	private static final String GETBYUSER = "SELECT g.id, g.name, g.photo, g.price FROM user_game ug "
+	private static final String GETALL = "SELECT id,name,price FROM game ORDER BY name ASC;";
+	private static final String GETBYID = "SELECT id,name,price FROM game WHERE id=?;";
+	private static final String GETBYUSER = "SELECT g.id, g.name, g.price FROM user_game ug "
 			+ "INNER JOIN game g ON g.id=ug.id_game "
 			+ "WHERE ug.id_user=?";
-	private static final String INSERT = "INSERT INTO game (name,photo,price) "
-			+ "VALUES (?,?,?);";
-	private static final String UPDATE = "UPDATE game SET name=?, photo=?, price=? WHERE id=?;";
+	private static final String INSERT = "INSERT INTO game (name,price) "
+			+ "VALUES (?,?);";
+	private static final String UPDATE = "UPDATE game SET name=?, price=? WHERE id=?;";
 	private static final String DELETE = "DELETE FROM game WHERE id=?;";
 
 	private static Connection con = null;
@@ -41,14 +41,12 @@ public class GameDAO {
 					Game aux = new Game();
 					aux.setId(rs.getInt("id"));
 					aux.setName(rs.getString("name"));
-					aux.setPhoto(rs.getString("photo"));
 					aux.setPrice(rs.getDouble("price"));
 
 					games.add(aux);
 				}
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
 			} finally {
 				try {
 					ps.close();
@@ -73,12 +71,11 @@ public class GameDAO {
 				ps.setInt(1, id);
 				rs = ps.executeQuery();
 				if (rs.next()) {
-					result = new Game(rs.getInt("id"), rs.getString("name"), rs.getString("photo"),
+					result = new Game(rs.getInt("id"), rs.getString("name"),
 							rs.getDouble("price"));
 				}
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
 			} finally {
 				try {
 					ps.close();
@@ -107,7 +104,6 @@ public class GameDAO {
 					Game aux = new Game();
 					aux.setId(rs.getInt("id"));
 					aux.setName(rs.getString("name"));
-					aux.setPhoto(rs.getString("photo"));
 					aux.setPrice(rs.getDouble("price"));
 
 					
@@ -115,7 +111,6 @@ public class GameDAO {
 				}
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
 			} finally {
 				try {
 					ps.close();
@@ -138,8 +133,7 @@ public class GameDAO {
 			try {
 				ps = con.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
 				ps.setString(1, g.getName());
-				ps.setString(2, g.getPhoto());
-				ps.setDouble(3, g.getPrice());
+				ps.setDouble(2, g.getPrice());
 
 				ps.executeUpdate();
 
@@ -158,7 +152,6 @@ public class GameDAO {
 					ps.close();
 				} catch (SQLException e) {
 					// TODO: handle exception
-					e.printStackTrace();
 				}
 			}
 
@@ -175,15 +168,13 @@ public class GameDAO {
 			try {
 				ps = con.prepareStatement(UPDATE);
 				ps.setString(1, g.getName());
-				ps.setString(2, g.getPhoto());
-				ps.setDouble(3, g.getPrice());
+				ps.setDouble(2, g.getPrice());
 
-				ps.setInt(4, g.getId());
+				ps.setInt(3, g.getId());
 				rs = ps.executeUpdate();
 
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
 				
 			}
 
@@ -211,7 +202,6 @@ public class GameDAO {
 				
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		}
 	}

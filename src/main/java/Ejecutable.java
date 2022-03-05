@@ -18,6 +18,7 @@ import models.requests.Request_Login;
 import models.requests.Request_Register;
 import models.responses.Response_Buy;
 import models.responses.Response_CreateGame;
+import models.responses.Response_Edit;
 import models.responses.Response_Login;
 
 public class Ejecutable extends Thread {
@@ -25,12 +26,13 @@ public class Ejecutable extends Thread {
 	public static ServerSocket servidor;
 
 	public static void main(String[] args) {
-			
+		
+		System.out.println("Servidor iniciado...");
+		
 		try {
 			servidor=new ServerSocket(6666);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		Ejecutable ej = new Ejecutable();
 		ej.start();
@@ -43,29 +45,27 @@ public class Ejecutable extends Thread {
 
 		try {
 			client = servidor.accept();
-			System.out.println("hola");
+			System.out.println("Estableciendo conexión con el cliente...");
 			
 			Ejecutable ej=new Ejecutable();
 			ej.start();
 			
-			System.out.println("despues del run");
 		} catch (IOException e2) {
 			// TODO Auto-generated catch block
-			e2.printStackTrace();
 		}
 
 		try {
 
 			while (true) {
 				
-				System.out.println("\nesperando request...\n");
+				System.out.println("\nEsperando petición...\n");
 				
 				ObjectInputStream flujoentrada = new ObjectInputStream(client.getInputStream());
 				boolean accepted;
 				
 				Request request = (Request) flujoentrada.readObject();
 			
-				System.out.println(request.toString()+"esto es requeestº");
+				System.out.println("Se ha recibido una petición: "+request.getName()+"...");
 				// switch
 
 				ObjectOutputStream flujosalida;
@@ -78,8 +78,6 @@ public class Ejecutable extends Thread {
 					
 					Request_Login rl = (Request_Login) request;
 					
-					System.out.println(rl);
-					
 					User u = UserDAO.getByUsername(rl.getUsername());
 									
 					boolean correct = false;
@@ -89,8 +87,6 @@ public class Ejecutable extends Thread {
 							correct = true;
 						}
 					}
-
-					System.out.println(u);
 					if (correct) {
 						rpl = new Response_Login(true, u, ShopDAO.getShop());
 					} else {
@@ -120,9 +116,6 @@ public class Ejecutable extends Thread {
 						
 						if(!(UserDAO.getByUsername(rr.getUsername())!=null)) {
 							
-							
-							System.out.println(UserDAO.getByUsername(rr.getUsername()));
-							
 							UserDAO.insert(newUser);
 
 							accepted = true;
@@ -150,7 +143,6 @@ public class Ejecutable extends Thread {
 						g=rcg.getGame();
 						
 						if(g.getName()!=null
-							&&g.getPhoto()!=null
 							&&g.getPrice()>0.0) {
 							GameDAO.insert(g);
 							
@@ -173,8 +165,6 @@ public class Ejecutable extends Thread {
 					accepted=false;
 					
 					Request_Buy rb=(Request_Buy) request;
-					
-					System.out.println(rb.getUser().getUsername());
 					
 					double total=0;
 					
@@ -201,7 +191,6 @@ public class Ejecutable extends Thread {
 					}
 					
 					Response_Buy rpb=new Response_Buy(accepted,rb.getUser());
-					System.out.println(rpb);
 					flujosalida = new ObjectOutputStream(client.getOutputStream());
 					flujosalida.writeObject(rpb);
 					
@@ -221,19 +210,31 @@ public class Ejecutable extends Thread {
 						accepted=true;
 						
 					}
+						
+					Response_Edit rpe;
+					
+					if(accepted) {
+						rpe=new Response_Edit(re.getUser(),true);
+					}
+					else {
+						rpe=new Response_Edit(null,false);
+					}
+					
+					flujosalida = new ObjectOutputStream(client.getOutputStream());
+					flujosalida.writeObject(rpe);
 					
 					break;
 				}
 
-				//servidor.accept();
+				System.out.println("Se ha respondido la petición...");
 				
 			}
 
 		} catch (Exception e) {
 			// TODO: handle exception
-			e.printStackTrace();
 			try {
 
+				System.out.println("El cliente se ha desconectado...");
 				client.close();
 
 			} catch (IOException e1) {
