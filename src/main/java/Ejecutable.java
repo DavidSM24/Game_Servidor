@@ -1,8 +1,6 @@
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.management.PlatformLoggingMXBean;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -21,7 +19,7 @@ import models.responses.Response_Buy;
 import models.responses.Response_CreateGame;
 import models.responses.Response_Login;
 
-public class Ejecutable implements Runnable {
+public class Ejecutable extends Thread {
 	
 	public static ServerSocket servidor;
 
@@ -34,7 +32,7 @@ public class Ejecutable implements Runnable {
 			e.printStackTrace();
 		}
 		Ejecutable ej = new Ejecutable();
-		ej.run();
+		ej.start();
 	}
 
 	public void run() {
@@ -46,8 +44,8 @@ public class Ejecutable implements Runnable {
 			client = servidor.accept();
 			System.out.println("hola");
 			
-			//Runnable runnable=new Ejecutable();
-			//runnable.run();
+			Ejecutable ej=new Ejecutable();
+			ej.start();
 			
 			System.out.println("despues del run");
 		} catch (IOException e2) {
@@ -59,12 +57,10 @@ public class Ejecutable implements Runnable {
 
 			while (true) {
 				
-				System.out.println("adios");
+				System.out.println("\nesperando request...\n");
 				
 				ObjectInputStream flujoentrada = new ObjectInputStream(client.getInputStream());
 				boolean accepted;
-				
-				System.out.println("me paso de flujoentrad?");
 				
 				Request request = (Request) flujoentrada.readObject();
 			
@@ -77,8 +73,6 @@ public class Ejecutable implements Runnable {
 				switch (request.getName()) {
 				case "login":
 
-					
-					
 					accepted=false;
 					
 					Request_Login rl = (Request_Login) request;
@@ -86,9 +80,7 @@ public class Ejecutable implements Runnable {
 					System.out.println(rl);
 					
 					User u = UserDAO.getByUsername(rl.getUsername());
-					
-					System.out.println(u);
-					
+									
 					boolean correct = false;
 
 					if (u != null) {
@@ -97,13 +89,14 @@ public class Ejecutable implements Runnable {
 						}
 					}
 
+					System.out.println(u);
 					if (correct) {
 						rpl = new Response_Login(true, u, ShopDAO.getShop());
 					} else {
 						rpl = new Response_Login(false, null, null);
 					}
 
-					System.out.println(rpl);
+					//System.out.println(rpl);
 					
 					flujosalida = new ObjectOutputStream(client.getOutputStream());
 					flujosalida.writeObject(rpl);
@@ -123,9 +116,16 @@ public class Ejecutable implements Runnable {
 
 						newUser = new User(false, rr.getUsername(), rr.getPassword(), rr.getMoney(),
 								new ArrayList<Game>());
-						UserDAO.insert(newUser);
+						
+						if(!(UserDAO.getByUsername(rr.getUsername())!=null)) {
+							
+							
+							System.out.println(UserDAO.getByUsername(rr.getUsername()));
+							
+							UserDAO.insert(newUser);
 
-						accepted = true;
+							accepted = true;
+						}	
 					}
 
 					if (accepted) {
@@ -173,17 +173,37 @@ public class Ejecutable implements Runnable {
 					
 					Request_Buy rb=(Request_Buy) request;
 					
-					if(rb.getUser()!=null&&rb.getGames()!=null&&rb.getUser().getMoney()>=rb.getGames().get(0).getPrice()) {
-						UserDAO.buyGame(rb.getUser(), rb.getGames().get(0));
+					System.out.println(rb.getUser().getUsername());
+					
+					double total=0;
+					
+					if(rb.getGames()!=null&&rb.getGames().size()>0) {
+						for(Game eg:rb.getGames()) {
+							total+=eg.getPrice();
+						}
 						
-						rb.getUser().getGames().add(rb.getGames().get(0));
 						
-						accepted=true;
+						if(rb.getUser()!=null&&rb.getGames()!=null&&rb.getUser().getMoney()>=total) {
+							
+							for(Game g2:rb.getGames()) {
+								UserDAO.buyGame(rb.getUser(), g2);
+							}
+							
+							rb.getUser().setMoney(rb.getUser().getMoney()-total);
+							
+							UserDAO.update(rb.getUser());
+							
+							rb.getUser().getGames().add(rb.getGames().get(0));
+							
+							accepted=true;
+						}
 					}
 					
 					Response_Buy rpb=new Response_Buy(accepted,rb.getUser());
+					System.out.println(rpb);
 					flujosalida = new ObjectOutputStream(client.getOutputStream());
 					flujosalida.writeObject(rpb);
+					
 					
 					break;
 				}

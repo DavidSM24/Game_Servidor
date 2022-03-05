@@ -85,6 +85,6 @@ public class Game implements Serializable{
 
 	@Override
 	public String toString() {
-		return "Game [id=" + id + ", name=" + name + ", photo=" + photo + ", price=" + price + "]";
+		return "";//"Game [id=" + id + ", name=" + name + ", photo=" + photo + ", price=" + price + "]";
 	}
 }

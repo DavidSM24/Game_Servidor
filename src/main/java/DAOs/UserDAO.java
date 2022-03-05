@@ -251,7 +251,7 @@ public class UserDAO {
 				ps.setInt(2, g.getId());
 
 				ps.executeUpdate();
-
+				
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
