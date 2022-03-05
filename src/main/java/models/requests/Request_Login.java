@@ -1,7 +1,13 @@
 package models.requests;
 
-public class Request_Login extends Request{
+import java.io.Serializable;
+
+public class Request_Login extends Request implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	String username;
 	String password;
 	

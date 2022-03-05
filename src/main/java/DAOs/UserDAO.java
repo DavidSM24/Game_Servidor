@@ -16,10 +16,13 @@ public class UserDAO {
 
 	private static final String GETALL = "SELECT id,username,password,money,admin FROM user ORDER BY username ASC;";
 	private static final String GETBYID = "SELECT id,username,password,money,admin FROM user WHERE id=?;";
+	private static final String GETBYUSERNAME = "SELECT id,username,password,money,admin FROM user WHERE username LIKE ?";
 	private static final String INSERT = "INSERT INTO user (username,password,money,admin) "
 			+ "VALUES (?,?,?,?);";
 	private static final String UPDATE = "UPDATE user SET username=?, password=?, money=?, admin=? WHERE id=?;";
 	private static final String DELETE = "DELETE FROM user WHERE id=?;";
+	private static final String DELETEFROMUSER_GAME="DELETE FROM user_game WHERE id_user=?;";
+	private static final String BUYGAME= "INSERT INTO user_game (id_user,id_game) VALUES (?,?);";
 
 	private static Connection con = null;
 
@@ -108,11 +111,11 @@ public class UserDAO {
 			PreparedStatement ps = null;
 			ResultSet rs = null;
 			try {
-				ps = con.prepareStatement(GETBYID);
+				ps = con.prepareStatement(GETBYUSERNAME);
 				ps.setString(1, username);
 				rs = ps.executeQuery();
 				if (rs.next()) {
-
+					result=new User();
 					result.setId(rs.getInt("id"));
 					result.setUsername(rs.getString("username"));
 					result.setPassword(rs.getString("password"));
@@ -222,6 +225,10 @@ public class UserDAO {
 				q.setInt(1,u.getId());
 				rs =q.executeUpdate();
 				
+				q=con.prepareStatement(DELETEFROMUSER_GAME);
+				q.setInt(1,u.getId());
+				rs =q.executeUpdate();
+				
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -229,10 +236,37 @@ public class UserDAO {
 		}
 	}
 
-	public void buyGame(User u, Game g) {
+	public static void buyGame(User u, Game g) {
 		
-		//ELIMINAR TODOS LOS REGISTROS EN USER_GAME DE ESTE USUARIO EN EL DELETE DE USER
-		//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		int result = -1;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		Connection con = MDBConexion.getConexion();
+
+		if (con != null) {
+			try {
+				ps = con.prepareStatement(BUYGAME);
+				
+				ps.setInt(1, u.getId());
+				ps.setInt(2, g.getId());
+
+				ps.executeUpdate();
+
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			finally {
+				try {
+					ps.close();
+				} catch (SQLException e) {
+					// TODO: handle exception
+					e.printStackTrace();
+				}
+			}
+
+		}
 	}
 
 }
